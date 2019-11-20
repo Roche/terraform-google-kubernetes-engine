@@ -19,7 +19,7 @@ locals {
 }
 
 provider "google-beta" {
-  version = "~> 2.12.0"
+  version = "~> 2.18.0"
   region  = var.region
 }
 
@@ -27,7 +27,6 @@ module "gke" {
   source                            = "../../modules/beta-public-cluster/"
   project_id                        = var.project_id
   name                              = "${local.cluster_type}-cluster${var.cluster_name_suffix}"
-  regional                          = false
   region                            = var.region
   zones                             = var.zones
   network                           = var.network
@@ -51,6 +50,7 @@ module "gke" {
       machine_type      = "n1-standard-2"
       min_count         = 1
       max_count         = 2
+      local_ssd_count   = 0
       disk_size_gb      = 30
       disk_type         = "pd-standard"
       accelerator_count = 1
@@ -59,12 +59,24 @@ module "gke" {
       auto_repair       = false
       service_account   = var.compute_engine_service_account
     },
+    {
+      name            = "pool-03"
+      node_locations  = "${var.region}-b,${var.region}-c"
+      autoscaling     = false
+      node_count      = 2
+      machine_type    = "n1-standard-2"
+      disk_type       = "pd-standard"
+      image_type      = "COS"
+      auto_upgrade    = true
+      service_account = var.compute_engine_service_account
+    },
   ]
 
   node_pools_oauth_scopes = {
     all     = []
     pool-01 = []
     pool-02 = []
+    pool-03 = []
   }
 
   node_pools_metadata = {
@@ -73,6 +85,7 @@ module "gke" {
       shutdown-script = file("${path.module}/data/shutdown-script.sh")
     }
     pool-02 = {}
+    pool-03 = {}
   }
 
   node_pools_labels = {
@@ -83,6 +96,7 @@ module "gke" {
       pool-01-example = true
     }
     pool-02 = {}
+    pool-03 = {}
   }
 
   node_pools_taints = {
@@ -101,6 +115,7 @@ module "gke" {
       },
     ]
     pool-02 = []
+    pool-03 = []
   }
 
   node_pools_tags = {
@@ -111,6 +126,7 @@ module "gke" {
       "pool-01-example",
     ]
     pool-02 = []
+    pool-03 = []
   }
 }
 

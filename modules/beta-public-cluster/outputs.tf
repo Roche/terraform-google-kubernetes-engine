@@ -54,6 +54,7 @@ output "endpoint" {
     */
     google_container_cluster.primary,
     google_container_node_pool.pools,
+    null_resource.wait_for_cluster.id,
   ]
 }
 
@@ -149,3 +150,15 @@ output "vertical_pod_autoscaling_enabled" {
   value       = local.cluster_vertical_pod_autoscaling_enabled
 }
 
+output "release_channel" {
+  description = "The release channel of this cluster"
+  value       = var.release_channel
+}
+
+output "identity_namespace" {
+  description = "Workload Identity namespace"
+  value       = var.identity_namespace
+  depends_on = [
+    "google_container_cluster.primary"
+  ]
+}
