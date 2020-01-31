@@ -157,3 +157,11 @@ output "identity_namespace" {
     "google_container_cluster.primary"
   ]
 }
+
+# currently no cleaner way to handle sharing master_ipv4_cidr_block (not possible with Terragrunt locals)
+# needed for firewall module
+# https://github.com/terraform-google-modules/terraform-google-kubernetes-engine/issues/409
+output "master_ipv4_cidr_block" {
+  description = "(Beta) The IP range in CIDR notation to use for the hosted master network"
+  value = var.master_ipv4_cidr_block
+}
